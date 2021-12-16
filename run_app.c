@@ -9,6 +9,7 @@ void error_message(){
 
 int main(int argc, char *argv[]){
     if(argc == 4){
+        //show error message
         error_message();
     }
     //Variable declaration
