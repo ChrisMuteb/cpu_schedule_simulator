@@ -5,40 +5,12 @@
 
 #define str_in_dt_sz 1024 //string input data size
 
+/*--------------Read txt file and parse it into the linked list-----Start---Above Main Fn-----------------*/
 void error_message(){
     printf("Required: -f <fileInName.txt> | -o f<ileOutName.txt>\n");
     exit(2);
 }
-//open the input file and returns a string of all data in the file
-void in_fl_openFile(char *in_txt, char str[]){
 
-    FILE *f_i;
-
-    f_i = fopen(in_txt,"r");
-
-    if(f_i != NULL){
-        char c;
-        char s[100];
-
-        int i = 0;
-        while((c=fgetc(f_i)) != EOF){
-           if(c == '\n'){
-               c = '#';
-               s[i] = c;
-           }
-           if(c != '\n'){
-               s[i] = c;
-           }
-           i++;
-            //putchar(c);
-        }
-        fclose(f_i);
-        strcpy(str, s);
-        //printf("CHris: %s",str);
-    }else printf("Error opening file.\n");
-
-}
-////incoming-------20 Dec
 typedef struct process{
     int title;//Stores process ID
     int burt_time;
@@ -53,20 +25,28 @@ struct process *createNode(int b_t, int a_t, int priorty);
 struct process *insertBack(struct process *header, int b_t, int a_t, int priorty);
 void display(struct process *header);
 void build_llist(char *in_txt, struct process *hdr);//gets data from file and fills up the linked list
+/*--------------Read txt file and parse it into the linked list-----End--------------------*/
 
+
+/*--------------Interface-----Start---Prototype declaration & variables-----------------*/
+int s_m_vl = 0, p_m_vl = 0, quantum = 0;//scheduling method value, premptive method value, quantum time
+char sch_vl[10], premt_vl[10];//sch_vl = {None, FCFS, SJF, Priority, RR} || premt_vl = {1 : ON, 2 : OFF}
+
+int rr_time();//prompt for the quantum time
+void firstMenu(int *s_m_arg, int *p_m_arg);//display the main menu
+void schedulingMethod();
+void premptive();//
+void algorithmExecution(int sched, int prem);//Repository of various algorithm
+/*--------------Interface-----End---Prototype declaration & variables-----------------*/
 int main(int argc, char *argv[]){
 
     if(argc < 4){//ensures that the number of arguments is not less than 4
-        //show error message
         error_message();
     }
     
     int optionInput;//Getopt var. holder
     char *in_fl, *out_fl;
     struct process *header = NULL;
-
-
-    //Implementation
     
     while((optionInput = getopt(argc, argv, "f:o:")) != -1){
         
@@ -85,13 +65,14 @@ int main(int argc, char *argv[]){
         
     }
     
-    build_llist(in_fl, header);
+    build_llist(in_fl, header);//Handle reading from file and fill linkedlist
+    firstMenu(&s_m_vl, &p_m_vl);//calling the interface function
 
 
     exit(0);
-    
 }
 
+/*--------------Interface-----Start---Function implementation-----------------*/
 void build_llist(char *in_txt, struct process *hdr){
     FILE *spin;
     int b_t, a_t, priority;
@@ -117,6 +98,7 @@ void build_llist(char *in_txt, struct process *hdr){
     display(hdr);
 
 }
+
 struct process *createNode(int b_t, int a_t, int priorty){
     struct process *temp;
     temp = (struct  process*)malloc(sizeof(struct process));
@@ -128,6 +110,7 @@ struct process *createNode(int b_t, int a_t, int priorty){
 
     return temp;
 }
+
 struct process *insertBack(struct process *header, int b_t, int a_t, int priorty){
 
     //create node
@@ -146,6 +129,7 @@ struct process *insertBack(struct process *header, int b_t, int a_t, int priorty
     headertemp->next = temp;
     return header;
 }
+
 void display(struct process *header){
     
   if(header == NULL)
@@ -158,3 +142,152 @@ void display(struct process *header){
     }
     puts("");
 }
+
+/*--------------Interface-----Start---Function implementation-----------------*/
+int rr_time(){// Calculate the rr quantum time
+    int dur = 0;//duration
+    printf("You have selected RR, now insert the duration: ");
+    scanf("%d", &dur);
+    quantum = dur;
+    return dur;
+}
+
+void firstMenu(int *s_m_arg, int *p_m_arg){// Displays the main menu
+    
+    int u_choice = 0;
+
+    // Types of scheduling method
+    switch (*s_m_arg)
+    {
+    case 0:
+        strcpy(sch_vl, "None");
+        break;
+    case 1:
+        strcpy(sch_vl, "FCFS");
+        break;
+    case 2:
+        strcpy(sch_vl, "SJF");
+        break;
+    case 3:
+        strcpy(sch_vl, "Priority");
+        break;
+    case 4:
+        strcpy(sch_vl, "RR");
+        break;
+    
+    default:
+        strcpy(sch_vl, "None");
+        break;
+    }
+
+    //printf("premt: %d\n", p_m_vl);
+    switch (*p_m_arg)
+    {
+    case 0:
+        strcpy(premt_vl, "Off");
+        break;
+    case 1:
+        strcpy(premt_vl, "ON");
+        break;
+    
+    default:
+        strcpy(premt_vl, "Off");
+        break;
+    }
+
+    if(*s_m_arg == 4)
+    
+        printf("\n\tCPU Scheduler Simulator\n1) Scheduling Method (%s - %d)\n2) Preemptive Mode (%s)\n3) Show Result\n4) End Program\nOption >", sch_vl, quantum, premt_vl);
+    else
+        printf("\n\tCPU Scheduler Simulator\n1) Scheduling Method (%s)\n2) Preemptive Mode (%s)\n3) Show Result\n4) End Program\nOption >", sch_vl, premt_vl);
+    scanf("%d", &u_choice);
+
+    switch (u_choice)
+    {
+    case 1:
+        puts("You chose: Scheduling Method(None) ");
+        schedulingMethod();//returns #
+
+        break;
+    case 2:
+        puts("You chose: Preemptive Mode");
+        premptive();
+        break;
+    case 3:
+        //printf("")
+        puts("You chose: Show Result");
+       
+        //algorithmExecution(s_m_vl, p_m_vl);
+        break;
+    case 4:
+        puts("You chose: End the program");
+        //Should display the avg and waiting time of each process and write to the output.txt
+        break;
+    
+    default:
+        printf("ERROR: cpu_scheduler_simulator takes only integers from 1 to 4\n");
+        break;
+    }
+}
+
+void schedulingMethod(){// Various scheduling methods
+    int u_choice = 0;//user choice
+
+    //output string
+    char o_str[] = "\tCPU Scheduler Simulator\n1) First Come, First Served Scheduling\n2) Shortest-Job-First Scheduling\n3) Priority Scheduling\n4) Round-Robin Scheduling (You should also obtain time quantum value)\nOption >";
+    printf("\n%s", o_str);
+    scanf("%d", &u_choice);
+
+    switch (u_choice)
+    {
+    case 1:
+        puts("You chose: FCFS ");
+        
+        break;
+    case 2:
+        puts("You chose: SJF");
+        break;
+    case 3:
+        puts("You chose: Priority");
+        break;
+    case 4:
+        printf("You chose: RR(%d)\n", rr_time());
+        break;
+    
+    default:
+        printf("ERROR: cpu_scheduler_simulator takes only integers from 1 to 4");
+        break;
+    }
+
+    s_m_vl = u_choice;
+    firstMenu(&s_m_vl, &p_m_vl);//Takes you back to the main menu
+}
+
+void premptive(){//Returns the boolean equivalent of the preemptive option
+    int isPremptive = 0;
+
+    char o_str[] = "\tCPU Scheduler Simulator\n1) Preemptive ON\n2) Preemptive OFF\nOption >";
+    printf("\n%s", o_str);
+    scanf("%d", &isPremptive);
+
+    switch(isPremptive)
+    {
+    case 1:
+        printf("\nPreemptive on");
+        isPremptive = 1;
+        break;
+    case 2:
+        isPremptive = 0;
+        printf("\nPreemptive OFF");
+        break;
+    
+    default:
+        printf("\nCan only take 1 or 2 are option\n");
+        break;
+    }
+    p_m_vl = isPremptive;
+    //printf("isPremtive: %d", p_m_vl);
+    firstMenu(&s_m_vl, &p_m_vl);//Takes you back to the main menu
+}
+/*--------------Interface-----End---Function implementation-----------------*/
+
