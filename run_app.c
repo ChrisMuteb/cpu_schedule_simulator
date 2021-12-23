@@ -24,7 +24,7 @@ static int num = 0;//Assign an id to a newly created process
 struct process *createNode(int b_t, int a_t, int priorty); 
 struct process *insertBack(struct process *header, int b_t, int a_t, int priorty);
 void display(struct process *header);
-void build_llist(char *in_txt, struct process *hdr);//gets data from file and fills up the linked list
+struct process * build_llist(char *in_txt, struct process *hdr);//gets data from file and fills up the linked list
 /*--------------Read txt file and parse it into the linked list-----End--------------------*/
 
 
@@ -38,6 +38,9 @@ void schedulingMethod();
 void premptive();//
 void algorithmExecution(int sched, int prem);//Repository of various algorithm
 /*--------------Interface-----End---Prototype declaration & variables-----------------*/
+
+struct process *cloneList(struct process *head); /*--------------Cloning LL----------*/
+
 int main(int argc, char *argv[]){
 
     if(argc < 4){//ensures that the number of arguments is not less than 4
@@ -46,9 +49,10 @@ int main(int argc, char *argv[]){
     
     int optionInput;//Getopt var. holder
     char *in_fl, *out_fl;
-    struct process *header = NULL;
+    struct process *header = NULL;//original linked list root
+    struct process *cp_h;//cloned linked list
     
-    while((optionInput = getopt(argc, argv, "f:o:")) != -1){
+    while((optionInput = getopt(argc, argv, "f:o:")) != -1){//prompt the user for the input and output file
         
         switch (optionInput)
         {
@@ -65,15 +69,19 @@ int main(int argc, char *argv[]){
         
     }
     
-    build_llist(in_fl, header);//Handle reading from file and fill linkedlist
+    header = build_llist(in_fl, header);//Handle reading from file and fill linkedlist
     firstMenu(&s_m_vl, &p_m_vl);//calling the interface function
+    //display(header); //Test and ensure that header has a copy of the original data
+    cp_h = cloneList(header);
+    //display(cp_h); //cp_h has cloned successfully header
+    
 
 
     exit(0);
 }
 
 /*--------------Interface-----Start---Function implementation-----------------*/
-void build_llist(char *in_txt, struct process *hdr){
+struct process * build_llist(char *in_txt, struct process *hdr){
     FILE *spin;
     int b_t, a_t, priority;
     char in[str_in_dt_sz];
@@ -95,7 +103,8 @@ void build_llist(char *in_txt, struct process *hdr){
         hdr = insertBack(hdr, b_t, a_t, priority);
     }
 
-    display(hdr);
+    //display(hdr);//Test 
+    return hdr;
 
 }
 
@@ -290,4 +299,36 @@ void premptive(){//Returns the boolean equivalent of the preemptive option
     firstMenu(&s_m_vl, &p_m_vl);//Takes you back to the main menu
 }
 /*--------------Interface-----End---Function implementation-----------------*/
+
+/*---------Cloning the Linkedlist---Start---Function implementation-------------*/
+struct process *cloneList(struct process *head){
+
+    struct process *current = head;
+    struct process *newList = NULL;
+    struct process *tail = NULL;
+
+    while(current != NULL){
+        if(newList == NULL){
+            newList = (struct process *)malloc(sizeof(struct process));
+            newList->title = current->title;
+            newList->burt_time = current->burt_time;
+            newList->arrival_time = current->arrival_time;
+            newList->priority = current->priority;
+
+            newList->next = NULL;
+            tail = newList;
+        }else{
+            tail->next = (struct process *)malloc(sizeof(struct process));
+            tail = tail->next;
+            tail->title = current->title;
+            tail->burt_time = current->burt_time;
+            tail->arrival_time = current->arrival_time;
+            tail->priority = current->priority;
+            tail->next = NULL;
+        }
+        current = current->next;
+    }
+    return newList;
+}
+/*---------Cloning the Linkedlist---End---Function implementation-------------*/
 
