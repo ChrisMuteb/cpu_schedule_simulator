@@ -31,15 +31,27 @@ struct process * build_llist(char *in_txt, struct process *hdr);//gets data from
 /*--------------Interface-----Start---Prototype declaration & variables-----------------*/
 int s_m_vl = 0, p_m_vl = 0, quantum = 0;//scheduling method value, premptive method value, quantum time
 char sch_vl[10], premt_vl[10];//sch_vl = {None, FCFS, SJF, Priority, RR} || premt_vl = {1 : ON, 2 : OFF}
+struct process *header = NULL;//original linked list root
+struct process *cp_h;//cloned linked list
 
 int rr_time();//prompt for the quantum time
 void firstMenu(int *s_m_arg, int *p_m_arg);//display the main menu
 void schedulingMethod();
 void premptive();//
-void algorithmExecution(int sched, int prem);//Repository of various algorithm
+
 /*--------------Interface-----End---Prototype declaration & variables-----------------*/
 
 struct process *cloneList(struct process *head); /*--------------Cloning LL----------*/
+
+/*---------Schduling Algorithm---Start---Prototype-------------*/
+void algorithmExecution(int sch_choice, int premtp_choice);//Perform various algorithms based on the user's choice
+void FCFS(struct process *cp);
+void SJF_Preempt(struct process *cp);
+void SJF_N_Preempt(struct process *cp);
+void Priority_Preempt(struct process *cp);
+void Priority_N_Preempt(struct process *cp);
+void RR(struct process *cp);
+/*---------Schduling Algorithm---End---Prototype-------------*/
 
 int main(int argc, char *argv[]){
 
@@ -49,8 +61,7 @@ int main(int argc, char *argv[]){
     
     int optionInput;//Getopt var. holder
     char *in_fl, *out_fl;
-    struct process *header = NULL;//original linked list root
-    struct process *cp_h;//cloned linked list
+    
     
     while((optionInput = getopt(argc, argv, "f:o:")) != -1){//prompt the user for the input and output file
         
@@ -74,6 +85,7 @@ int main(int argc, char *argv[]){
     //display(header); //Test and ensure that header has a copy of the original data
     cp_h = cloneList(header);
     //display(cp_h); //cp_h has cloned successfully header
+    printf("\nYou selected-Method:%d &&Option: %d\n", s_m_vl, p_m_vl);
     
 
 
@@ -224,9 +236,7 @@ void firstMenu(int *s_m_arg, int *p_m_arg){// Displays the main menu
         break;
     case 3:
         //printf("")
-        puts("You chose: Show Result");
-       
-        //algorithmExecution(s_m_vl, p_m_vl);
+        algorithmExecution(s_m_vl, p_m_vl);
         break;
     case 4:
         puts("You chose: End the program");
@@ -331,4 +341,46 @@ struct process *cloneList(struct process *head){
     return newList;
 }
 /*---------Cloning the Linkedlist---End---Function implementation-------------*/
+
+/*---------Schduling Algorithm---Start---Function implementation-------------*/
+void algorithmExecution(int sch_choice, int premtp_choice){
+
+    if(sch_choice == 1 && premtp_choice == 0){//FCFS 
+        FCFS(cp_h);
+    }else if(sch_choice == 1 && premtp_choice == 1){
+        puts("\nFCFS can never be preempted");
+    }else if(sch_choice == 2 && premtp_choice == 0){
+        SJF_N_Preempt(cp_h);
+    }else if(sch_choice == 2 && premtp_choice == 1){
+        SJF_Preempt(cp_h);
+    }
+    else if(sch_choice == 3 && premtp_choice == 1){
+        Priority_Preempt(cp_h);
+    }else if(sch_choice == 3 && premtp_choice == 0){
+        Priority_N_Preempt(cp_h);
+    }else if(sch_choice == 4 ){
+        RR(cp_h);
+    }
+    
+}
+void FCFS(struct process *cp){
+    puts("FCFS called");
+}
+void SJF_N_Preempt(struct process *cp){
+    puts("SJF Non Preempt.");
+}
+void SJF_Preempt(struct process *cp){
+    puts("SJF Preempt");
+}
+void Priority_Preempt(struct process *cp){
+    puts("Priority Preempt.");
+}
+void Priority_N_Preempt(struct process *cp){
+    puts("Priority Non Preempt.");
+}
+void RR(struct process *cp){
+    puts("RR");
+}
+/*---------Schduling Algorithm---End---Function implementation-------------*/
+
 
