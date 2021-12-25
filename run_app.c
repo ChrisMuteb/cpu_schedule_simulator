@@ -238,6 +238,8 @@ void firstMenu(int *s_m_arg, int *p_m_arg){// Displays the main menu
     case 3:
         //printf("")
         algorithmExecution(s_m_vl, p_m_vl);
+        s_m_vl = p_m_vl = 0;
+        firstMenu(&s_m_vl, &p_m_vl);//takes us back to the main menu
         break;
     case 4:
         puts("You chose: End the program");
