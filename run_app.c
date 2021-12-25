@@ -16,6 +16,7 @@ typedef struct process{
     int burt_time;
     int arrival_time;
     int priority;
+    int wainting_time;
     struct process *next;
 }p;
 static int num = 0;//Assign an id to a newly created process
@@ -45,7 +46,7 @@ struct process *cloneList(struct process *head); /*--------------Cloning LL-----
 
 /*---------Schduling Algorithm---Start---Prototype-------------*/
 void algorithmExecution(int sch_choice, int premtp_choice);//Perform various algorithms based on the user's choice
-void FCFS(struct process *cp);
+void FCFS();
 void SJF_Preempt(struct process *cp);
 void SJF_N_Preempt(struct process *cp);
 void Priority_Preempt(struct process *cp);
@@ -85,7 +86,7 @@ int main(int argc, char *argv[]){
     //display(header); //Test and ensure that header has a copy of the original data
     cp_h = cloneList(header);
     //display(cp_h); //cp_h has cloned successfully header
-    printf("\nYou selected-Method:%d &&Option: %d\n", s_m_vl, p_m_vl);
+    //printf("\nYou selected-Method:%d &&Option: %d\n", s_m_vl, p_m_vl);
     
 
 
@@ -346,7 +347,8 @@ struct process *cloneList(struct process *head){
 void algorithmExecution(int sch_choice, int premtp_choice){
 
     if(sch_choice == 1 && premtp_choice == 0){//FCFS 
-        FCFS(cp_h);
+        
+        FCFS();
     }else if(sch_choice == 1 && premtp_choice == 1){
         puts("\nFCFS can never be preempted");
     }else if(sch_choice == 2 && premtp_choice == 0){
@@ -363,9 +365,34 @@ void algorithmExecution(int sch_choice, int premtp_choice){
     }
     
 }
-void FCFS(struct process *cp){
-    puts("FCFS called");
+
+void FCFS(){
+    struct process *cp = cloneList(header);
+    //display(cp);
+    //puts("FCFS called");
+    struct process *temp = NULL;
+    temp = cp;
+    int sum_wt = 0, prev_bt = 0, num_proc = 0;
+    float avg = 0;
+
+    while(temp != NULL){
+        if(temp == cp){
+            temp->wainting_time = 0;
+            prev_bt = temp->burt_time;
+    }else{
+            temp->wainting_time = prev_bt;
+            sum_wt += temp->wainting_time;
+            prev_bt += temp->burt_time;
+    }
+        printf("P%d: ", temp->title);
+        printf("%d ms\n", temp->wainting_time);
+        temp = temp->next;
+        num_proc++;
+    }
+    avg = (float)sum_wt/(float)num_proc;
+    printf("Average Waiting Time: %.1f\n", avg);
 }
+
 void SJF_N_Preempt(struct process *cp){
     puts("SJF Non Preempt.");
 }
