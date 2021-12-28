@@ -50,14 +50,17 @@ void FCFS();
 void SJF_Preempt(struct process *cp);
 void SJF_N_Preempt();
 void Priority_Preempt(struct process *cp);
-void Priority_N_Preempt(struct process *cp);
+void Priority_N_Preempt();
 void RR(struct process *cp);
 /*---------Schduling Algorithm---End---Prototype-------------*/
 
-/*-----------SJF Fn Prototype.----------------*/
+/*-----------SJF Non Preemptive Fn Prototype.----------------*/
 void swap(struct process *a, struct process *b);
 void sortProcess(struct process *h);
 void FCFS_Algo(struct process *h);
+
+/*--------------Priority Non Preemptive prototype*/
+void sortPriority(struct process *h);
 
 int main(int argc, char *argv[]){
 
@@ -413,8 +416,13 @@ void SJF_Preempt(struct process *cp){
 void Priority_Preempt(struct process *cp){
     puts("Priority Preempt.");
 }
-void Priority_N_Preempt(struct process *cp){
+void Priority_N_Preempt(){
     puts("Priority Non Preempt.");
+    struct process *cp = NULL;
+    cp = cloneList(header);
+    sortPriority(cp);
+    FCFS_Algo(cp);
+    
 }
 void RR(struct process *cp){
     puts("RR");
@@ -497,4 +505,34 @@ void FCFS_Algo(struct process *h){
     }
     avg = (float)sum_wt/(float)num_proc;
     printf("Average Waiting Time: %.1f\n", avg);
+}
+
+void sortPriority(struct process *h)
+{
+    //int i;
+    struct process *ht;//header temp
+    struct process *an = NULL;//after node
+    int is_sp;
+  
+    /* Checking for empty list */
+    if (ht == NULL)
+        return;
+  
+    do
+    {//outter loop
+        is_sp = 0;
+        ht = h;
+  
+        while (ht->next != an)
+        {//inner loop
+            if (ht->priority > ht->next->priority)
+            { 
+                swap(ht, ht->next);
+                is_sp = 1;
+            }
+            ht = ht->next;
+        }
+        an = ht;
+    }
+    while (is_sp);
 }
