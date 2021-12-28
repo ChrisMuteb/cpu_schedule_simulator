@@ -48,11 +48,16 @@ struct process *cloneList(struct process *head); /*--------------Cloning LL-----
 void algorithmExecution(int sch_choice, int premtp_choice);//Perform various algorithms based on the user's choice
 void FCFS();
 void SJF_Preempt(struct process *cp);
-void SJF_N_Preempt(struct process *cp);
+void SJF_N_Preempt();
 void Priority_Preempt(struct process *cp);
 void Priority_N_Preempt(struct process *cp);
 void RR(struct process *cp);
 /*---------Schduling Algorithm---End---Prototype-------------*/
+
+/*-----------SJF Fn Prototype.----------------*/
+void swap(struct process *a, struct process *b);
+void sortProcess(struct process *h);
+void FCFS_Algo(struct process *h);
 
 int main(int argc, char *argv[]){
 
@@ -354,7 +359,7 @@ void algorithmExecution(int sch_choice, int premtp_choice){
     }else if(sch_choice == 1 && premtp_choice == 1){
         puts("\nFCFS can never be preempted");
     }else if(sch_choice == 2 && premtp_choice == 0){
-        SJF_N_Preempt(cp_h);
+        SJF_N_Preempt();
     }else if(sch_choice == 2 && premtp_choice == 1){
         SJF_Preempt(cp_h);
     }
@@ -395,8 +400,12 @@ void FCFS(){
     printf("Average Waiting Time: %.1f\n", avg);
 }
 
-void SJF_N_Preempt(struct process *cp){
+void SJF_N_Preempt(){
     puts("SJF Non Preempt.");
+    struct process *cp = NULL;
+    cp = cloneList(header);
+    sortProcess(cp);
+    FCFS_Algo(cp);
 }
 void SJF_Preempt(struct process *cp){
     puts("SJF Preempt");
@@ -412,4 +421,80 @@ void RR(struct process *cp){
 }
 /*---------Schduling Algorithm---End---Function implementation-------------*/
 
+/*------------SJF relying fn implementation*/
+void swap(struct process *a, struct process *b)
+{
+    int t_title = a->title;//Stores process number
+    int t_burt_time = a->burt_time;
+    int t_arrival_time = a->arrival_time;
+    int t_priority = a->priority;
+    int t_w_t = a->wainting_time;
+    
 
+    
+    a->title = b->title;
+    a->burt_time = b->burt_time;
+    a->arrival_time = b->arrival_time;
+    a->priority = b->priority;
+    a->wainting_time = b->wainting_time;
+
+    
+    b->title = t_title;
+    b->burt_time = t_burt_time;
+    b->arrival_time = t_arrival_time;
+    b->priority = t_priority;
+    b->wainting_time = t_w_t;
+}
+void sortProcess(struct process *h){
+    struct process *ht;//header temp
+    struct process *an = NULL;//after node
+    int is_sp;
+  
+    /* Checking for empty list */
+    if (ht == NULL)
+        return;
+  
+    do
+    {//outter loop
+        is_sp = 0;
+        ht = h;
+  
+        while (ht->next != an)
+        {//inner loop
+            if (ht->burt_time > ht->next->burt_time)
+            { 
+                swap(ht, ht->next);
+                is_sp = 1;
+            }
+            ht = ht->next;
+        }
+        an = ht;
+    }
+    while (is_sp);
+}
+
+void FCFS_Algo(struct process *h){
+    struct process *cp = cloneList(h);
+
+    struct process *temp = NULL;
+    temp = cp;
+    int sum_wt = 0, prev_bt = 0, num_proc = 0;
+    float avg = 0;
+
+    while(temp != NULL){
+        if(temp == cp){
+            temp->wainting_time = 0;
+            prev_bt = temp->burt_time;
+    }else{
+            temp->wainting_time = prev_bt;
+            sum_wt += temp->wainting_time;
+            prev_bt += temp->burt_time;
+    }
+        printf("P%d: ", temp->title);
+        printf("%d ms\n", temp->wainting_time);
+        temp = temp->next;
+        num_proc++;
+    }
+    avg = (float)sum_wt/(float)num_proc;
+    printf("Average Waiting Time: %.1f\n", avg);
+}
