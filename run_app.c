@@ -17,6 +17,7 @@ typedef struct process{
     int arrival_time;
     int priority;
     int wainting_time;
+    int turn_a_t;
     struct process *next;
 }p;
 static int num = 0;//Assign an id to a newly created process
@@ -61,6 +62,12 @@ void FCFS_Algo(struct process *h);
 
 /*--------------Priority Non Preemptive prototype*/
 void sortPriority(struct process *h);
+
+//-------FCFS-----
+int waitingtimeFCFS(struct process *);
+int turnaroundtimeFCFS( struct process *);
+int avgtimeFCFS( struct process *);
+void quickFCFS(struct process *);
 
 int main(int argc, char *argv[]){
 
@@ -378,11 +385,18 @@ void algorithmExecution(int sch_choice, int premtp_choice){
 
 void FCFS(){
     struct process *cp = cloneList(header);
-    //display(cp);
-    //puts("FCFS called");
     struct process *temp = NULL;
     temp = cp;
-    int sum_wt = 0, prev_bt = 0, num_proc = 0;
+    //------------------
+    
+    //waitingtimeFCFS(cp);
+    //turnaroundtimeFCFS(cp);
+    //avgtimeFCFS(cp);
+    quickFCFS(cp);
+    
+    //------------------
+
+    /*int sum_wt = 0, prev_bt = 0, num_proc = 0;
     float avg = 0;
 
     while(temp != NULL){
@@ -400,7 +414,67 @@ void FCFS(){
         num_proc++;
     }
     avg = (float)sum_wt/(float)num_proc;
-    printf("Average Waiting Time: %.1f\n", avg);
+    printf("Average Waiting Time: %.1f\n", avg);*/
+}
+void quickFCFS(struct process *cp){
+    // Function to find the waiting time for all processes
+    waitingtimeFCFS(cp);
+// Function to calculate turn around time
+    turnaroundtimeFCFS(cp);
+//Function to calculate average time
+    avgtimeFCFS(cp);
+}
+
+int avgtimeFCFS( struct process *cp) {
+   int total_wt = 0, total_tat = 0, n=0;
+   int i;
+   //Function to find waiting time of all processes
+   waitingtimeFCFS(cp);
+   //Function to find turn around time for all processes
+   turnaroundtimeFCFS(cp);
+   // Calculate total waiting time and total turn
+   // around time
+   for ( i=0; cp != NULL; i++) {
+      total_wt = total_wt + cp->wainting_time;
+      total_tat = total_tat + cp->turn_a_t;
+      printf("\n%d\t  %d\t\t %d \t\n", cp->title, cp->burt_time, cp->wainting_time);
+      n++;
+      cp = cp->next;
+   }
+   printf("Average waiting time = %.2f\n", (float)total_wt / (float)n);
+   return 0;
+}
+int turnaroundtimeFCFS( struct process *cp) {
+   // calculating turnaround time by adding
+   // burst_time[i] + wait_time[i]
+   struct process *ht = NULL;
+   ht = cp;
+   int i;
+   for ( i = 0; ht != NULL ; i++){
+       ht->turn_a_t = ht->burt_time + ht->wainting_time;
+       ht = ht->next;
+   }
+   
+   return 0;
+}
+int waitingtimeFCFS(struct process *cp) {
+   // waiting time for first process is 0
+   struct process *ht = NULL;
+   ht = cp;
+   ht->wainting_time = 0;
+   // calculating waiting time
+
+   //ht = ht->next;
+   struct process *h = NULL;
+   h = ht;
+   ht = ht->next;
+   while( ht != NULL ){
+       ht->wainting_time = h->burt_time + h->wainting_time;
+       h = h->next;
+       ht = ht->next;
+   }
+        
+   return 0;
 }
 
 void SJF_N_Preempt(){
