@@ -52,7 +52,7 @@ void SJF_Preempt(struct process *cp);
 void SJF_N_Preempt();
 void Priority_Preempt(struct process *cp);
 void Priority_N_Preempt();
-void RR(struct process *cp);
+void RR();
 /*---------Schduling Algorithm---End---Prototype-------------*/
 
 /*-----------SJF Non Preemptive Fn Prototype.----------------*/
@@ -69,6 +69,7 @@ int turnaroundtimeFCFS( struct process *);
 int avgtimeFCFS( struct process *);
 void quickFCFS(struct process *);
 
+char *in_fl, *out_fl;//input and output file
 int main(int argc, char *argv[]){
 
     if(argc < 4){//ensures that the number of arguments is not less than 4
@@ -76,7 +77,7 @@ int main(int argc, char *argv[]){
     }
     
     int optionInput;//Getopt var. holder
-    char *in_fl, *out_fl;
+    
     
     
     while((optionInput = getopt(argc, argv, "f:o:")) != -1){//prompt the user for the input and output file
@@ -378,7 +379,7 @@ void algorithmExecution(int sch_choice, int premtp_choice){
     }else if(sch_choice == 3 && premtp_choice == 0){
         Priority_N_Preempt(cp_h);
     }else if(sch_choice == 4 ){
-        RR(cp_h);
+        RR();
     }
     
 }
@@ -434,6 +435,8 @@ int avgtimeFCFS( struct process *cp) {
    turnaroundtimeFCFS(cp);
    // Calculate total waiting time and total turn
    // around time
+   
+  
    for ( i=0; cp != NULL; i++) {
       total_wt = total_wt + cp->wainting_time;
       total_tat = total_tat + cp->turn_a_t;
@@ -442,6 +445,7 @@ int avgtimeFCFS( struct process *cp) {
       cp = cp->next;
    }
    printf("Average waiting time = %.2f\n", (float)total_wt / (float)n);
+   
    return 0;
 }
 int turnaroundtimeFCFS( struct process *cp) {
@@ -498,8 +502,8 @@ void Priority_N_Preempt(){
     FCFS_Algo(cp);
     
 }
-void RR(struct process *cp){
-    puts("RR");
+void RR(){
+    printf("Round robin\n");
 }
 /*---------Schduling Algorithm---End---Function implementation-------------*/
 
